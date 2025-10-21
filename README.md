@@ -1,16 +1,4 @@
-# stabletexture_applier
+An experimentation tool to convert Wuthering Waves XXMI Mods to use RabbitFx's Stable Texture.  
+Complete automatic converter is not possible, so this tool will help a bit, by visualizing to UI and interactive UX.
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Unfinished Project.
