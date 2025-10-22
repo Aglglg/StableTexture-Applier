@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 import 'package:path/path.dart' as p;
+import 'package:stabletexture_applier/bouncing_text.dart';
 import 'package:stabletexture_applier/state_provider.dart';
 
 ////////////MAIN//////////////
@@ -284,6 +285,7 @@ class TexturesSection extends StatelessWidget {
         bottom: 30,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -297,15 +299,90 @@ class TexturesSection extends StatelessWidget {
             ),
           ),
           Container(height: 15),
-          Container(
-            height: 300,
-            decoration: BoxDecoration(
-              border: Border.all(width: 2, color: const Color(0xFF222C38)),
-              borderRadius: BorderRadius.circular(10),
+          Expanded(
+            child: ListView(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 2,
+                      color: const Color(0xFF222C38),
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(height: 15),
+                      Text(
+                        "TextureOverrideTexture1",
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Wrap(
+                          spacing: 13,
+                          runSpacing: 13,
+                          children: [
+                            TextureWidget(),
+                            TextureWidget(),
+                            TextureWidget(),
+                            TextureWidget(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class TextureWidget extends StatelessWidget {
+  const TextureWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        BouncingText(
+          text: 'ResourceTexture1',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          width: 130,
+        ),
+        BouncingText(
+          text: 'Components-0 t=40e95d0b.dds',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w300,
+          ),
+          width: 130,
+        ),
+        SizedBox(height: 5),
+        Container(
+          height: 130,
+          width: 130,
+          decoration: BoxDecoration(
+            border: Border.all(width: 2, color: const Color(0xFF222C38)),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ],
     );
   }
 }
