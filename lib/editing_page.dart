@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -262,13 +263,13 @@ class _IniFileTextButtonState extends ConsumerState<IniFileTextButton> {
         backgroundColor: WidgetStateProperty.all(Colors.transparent),
         foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
           if (states.contains(WidgetState.pressed)) {
-            return const Color(0xFFFFB454);
+            return const Color(0xFF0096cf);
           } else if (states.contains(WidgetState.hovered)) {
             return const Color(0xFF0096cf);
           }
 
           return ref.watch(selectedIniPathProvider) == widget.iniFilePath
-              ? const Color(0xFFFFB454)
+              ? const Color(0xFF0096cf)
               : Colors.white;
         }),
       ),
@@ -345,19 +346,46 @@ class TexturesSection extends StatelessWidget {
   }
 }
 
-class TextureOverrideTextureWidget extends StatelessWidget {
+final isDraggingItemProvider = StateProvider<bool>((ref) => false);
+
+class TextureOverrideTextureWidget extends ConsumerStatefulWidget {
   const TextureOverrideTextureWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  ConsumerState<TextureOverrideTextureWidget> createState() =>
+      _TextureOverrideTextureWidgetState();
+}
+
+class _TextureOverrideTextureWidgetState
+    extends ConsumerState<TextureOverrideTextureWidget> {
+  bool _isHovered = false;
+  int _childrenHoverCount = 0;
+
+  Color get _borderColor {
+    final isDragging = ref.watch(isDraggingItemProvider);
+    if (isDragging) return const Color(0xFF222C38);
+    return (_isHovered && _childrenHoverCount == 0)
+        ? const Color(0xFF0096cf)
+        : const Color(0xFF222C38);
+  }
+
+  void _onChildHoverChanged(bool isHovering) {
+    setState(() {
+      _childrenHoverCount += isHovering ? 1 : -1;
+      if (_childrenHoverCount < 0) _childrenHoverCount = 0;
+    });
+  }
+
+  Widget _buildContainer() {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(width: 2, color: const Color(0xFF222C38)),
+        color: const Color(0xFF14191F),
+        border: Border.all(width: 2, color: _borderColor),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         children: [
-          Container(height: 15),
+          const SizedBox(height: 15),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Text(
@@ -368,6 +396,7 @@ class TextureOverrideTextureWidget extends StatelessWidget {
                 color: Colors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
+                decoration: TextDecoration.none,
               ),
             ),
           ),
@@ -376,20 +405,79 @@ class TextureOverrideTextureWidget extends StatelessWidget {
             child: Wrap(
               spacing: 13,
               runSpacing: 13,
-              children: [TextureWidget(), TextureWidget()],
+              children: [
+                TextureWidget(onHoverChanged: _onChildHoverChanged),
+                TextureWidget(onHoverChanged: _onChildHoverChanged),
+              ],
             ),
           ),
         ],
       ),
     );
   }
-}
-
-class TextureWidget extends StatelessWidget {
-  const TextureWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDragging = ref.watch(isDraggingItemProvider);
+
+    return MouseRegion(
+      opaque: false,
+      onEnter: (_) {
+        if (!isDragging) setState(() => _isHovered = true);
+      },
+      onExit: (_) {
+        if (!isDragging) {
+          setState(() {
+            _isHovered = false;
+            _childrenHoverCount = 0;
+          });
+        }
+      },
+      child: Listener(
+        onPointerDown: (_) =>
+            ref.read(isDraggingItemProvider.notifier).state = true,
+        onPointerUp: (_) {
+          ref.read(isDraggingItemProvider.notifier).state = false;
+          setState(() {
+            _isHovered = false;
+          });
+        },
+        behavior: HitTestBehavior.deferToChild,
+        child: Draggable(
+          dragAnchorStrategy: pointerDragAnchorStrategy,
+          feedback: Opacity(opacity: .8, child: _buildContainer()),
+          childWhenDragging: Opacity(opacity: 0.3, child: _buildContainer()),
+          child: _buildContainer(),
+        ),
+      ),
+    );
+  }
+}
+
+class TextureWidget extends ConsumerStatefulWidget {
+  //optional callback parent can provide, to be notified of child's hover state
+  final ValueChanged<bool>? onHoverChanged;
+
+  const TextureWidget({super.key, this.onHoverChanged});
+
+  @override
+  ConsumerState<TextureWidget> createState() => _TextureWidgetState();
+}
+
+class _TextureWidgetState extends ConsumerState<TextureWidget> {
+  bool _isHovered = false;
+
+  Color get _borderColor {
+    final isDragging = ref.watch(isDraggingItemProvider);
+    if (isDragging) return const Color(0xFF222C38);
+    return _isHovered ? const Color(0xFF0096cf) : const Color(0xFF222C38);
+  }
+
+  void _notifyParent(bool hovering) {
+    if (widget.onHoverChanged != null) widget.onHoverChanged!(hovering);
+  }
+
+  Widget _buildContainer() {
     return Column(
       children: [
         BouncingText(
@@ -398,8 +486,9 @@ class TextureWidget extends StatelessWidget {
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w500,
+            decoration: TextDecoration.none,
           ),
-          width: 130,
+          width: 180,
         ),
         BouncingText(
           text: 'Components-0 t=40e95d0b.dds',
@@ -407,19 +496,58 @@ class TextureWidget extends StatelessWidget {
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w300,
+            decoration: TextDecoration.none,
           ),
-          width: 130,
+          width: 180,
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         Container(
-          height: 130,
-          width: 130,
+          height: 180,
+          width: 180,
           decoration: BoxDecoration(
-            border: Border.all(width: 2, color: const Color(0xFF222C38)),
+            color: const Color(0xFF14191F),
+            border: Border.all(width: 2, color: _borderColor),
             borderRadius: BorderRadius.circular(10),
           ),
         ),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDragging = ref.watch(isDraggingItemProvider);
+
+    return MouseRegion(
+      onEnter: (_) {
+        if (!isDragging) {
+          setState(() => _isHovered = true);
+          _notifyParent(true);
+        }
+      },
+      onExit: (_) {
+        if (!isDragging) {
+          setState(() => _isHovered = false);
+          _notifyParent(false);
+        }
+      },
+      child: Listener(
+        onPointerDown: (_) {
+          if (!mounted) return;
+          _notifyParent(false);
+        },
+        onPointerUp: (_) {
+          if (!mounted) return;
+          //schedule to next frame to make sure widget still mounted
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() => _isHovered = false);
+            _notifyParent(false);
+          });
+        },
+        behavior: HitTestBehavior.opaque,
+        child: _buildContainer(),
+      ),
     );
   }
 }
@@ -437,8 +565,9 @@ class TextureEmptyWidget extends StatelessWidget {
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w500,
+            decoration: TextDecoration.none,
           ),
-          width: 130,
+          width: 180,
         ),
         BouncingText(
           text: '',
@@ -446,18 +575,17 @@ class TextureEmptyWidget extends StatelessWidget {
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w300,
+            decoration: TextDecoration.none,
           ),
-          width: 130,
+          width: 180,
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         Container(
-          height: 130,
-          width: 130,
+          height: 180,
+          width: 180,
           decoration: BoxDecoration(
-            border: Border.all(
-              width: 2,
-              color: const Color.fromARGB(0, 34, 44, 56),
-            ),
+            color: const Color(0xFF14191F),
+            border: Border.all(width: 2, color: Colors.transparent),
             borderRadius: BorderRadius.circular(10),
           ),
         ),
@@ -572,42 +700,97 @@ class TextureOverrideComponentWidget extends StatelessWidget {
   }
 }
 
-class TextureSlotWidget extends StatelessWidget {
+class TextureSlotWidget extends ConsumerStatefulWidget {
   final String slotName;
   const TextureSlotWidget({super.key, required this.slotName});
 
   @override
+  ConsumerState<TextureSlotWidget> createState() => _TextureSlotWidgetState();
+}
+
+class _TextureSlotWidgetState extends ConsumerState<TextureSlotWidget> {
+  bool _blinkOn = false;
+  Timer? _blinkTimer;
+
+  @override
+  void dispose() {
+    _blinkTimer?.cancel();
+    _blinkTimer = null;
+    super.dispose();
+  }
+
+  void _startBlinking() {
+    if (_blinkTimer != null) return;
+    _blinkTimer = Timer.periodic(const Duration(milliseconds: 400), (_) {
+      if (!mounted) return;
+      setState(() => _blinkOn = !_blinkOn);
+    });
+  }
+
+  void _stopBlinking() {
+    if (_blinkTimer == null) return;
+    _blinkTimer!.cancel();
+    _blinkTimer = null; //important: clear reference so can be restarted later
+    if (mounted) setState(() => _blinkOn = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(width: 2, color: const Color(0xFF222C38)),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          SizedBox(height: 15),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Text(
-              slotName,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+    final isDragging = ref.watch(isDraggingItemProvider);
+    const idleColor = Color(0xFF222C38);
+    const blinkColor = Color(0xFF0096CF);
+    const dropColor = Color(0xFFFFB454);
+
+    if (isDragging) {
+      _startBlinking();
+    } else {
+      _stopBlinking();
+    }
+
+    return DragTarget(
+      builder: (context, candidateData, rejectedData) {
+        final bool isHovering = candidateData.isNotEmpty;
+        final color = isHovering
+            ? dropColor //static orange if hovering to drop
+            : (isDragging ? (_blinkOn ? blinkColor : idleColor) : idleColor);
+
+        return Container(
+          decoration: BoxDecoration(
+            border: Border.all(width: 2, color: color),
+            borderRadius: BorderRadius.circular(10),
+            color: const Color(0xFF14191F),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 15),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Text(
+                  widget.slotName,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Wrap(
+                  spacing: 13,
+                  runSpacing: 13,
+                  children: isHovering
+                      ? [TextureWidget()]
+                      : const [TextureEmptyWidget()],
+                ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Wrap(
-              spacing: 13,
-              runSpacing: 13,
-              children: [TextureEmptyWidget()],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

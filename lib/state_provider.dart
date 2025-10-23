@@ -14,4 +14,6 @@ final StateProvider<String> selectedIniPathProvider = StateProvider<String>(
   (ref) => "",
 );
 
+final isDraggingItemProvider = StateProvider<bool>((ref) => false);
+
 enum AppState { selectFolder, editing }
