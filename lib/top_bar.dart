@@ -31,7 +31,15 @@ class WindowTopBar extends StatelessWidget {
           ),
         ),
         child: Stack(
-          children: [MoveWindow(), WindowButtonsTopRight(), TitleAreaTopLeft()],
+          children: [
+            MoveWindow(),
+            Row(
+              children: [
+                Flexible(flex: 1, child: TitleAreaTopLeft()),
+                Flexible(flex: 1, child: WindowButtonsTopRight()),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -130,14 +138,20 @@ class TitleAreaTopLeft extends ConsumerWidget {
               },
               child: Icon(Icons.arrow_back_ios_new, size: 14),
             ),
-          Text(
-            ref.watch(appStateProvider) == AppState.editing
-                ? "${p.basename(ref.watch(modFolderPathProvider))}  -  StableTextureApplier"
-                : "StableTextureApplier",
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: IgnorePointer(
+              child: Text(
+                ref.watch(appStateProvider) == AppState.editing
+                    ? "${p.basename(ref.watch(modFolderPathProvider))}  -  StableTextureApplier"
+                    : "StableTextureApplier",
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
         ],

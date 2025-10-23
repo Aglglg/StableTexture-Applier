@@ -560,102 +560,50 @@ class TextureOverrideComponentWidget extends StatelessWidget {
               spacing: 13,
               runSpacing: 13,
               children: [
-                Column(
-                  children: [
-                    Text(
-                      'Diffuse',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 5),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 2,
-                          color: const Color(0xFF222C38),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Wrap(
-                          spacing: 13,
-                          runSpacing: 13,
-                          children: [TextureWidget()],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                Column(
-                  children: [
-                    Text(
-                      'Light map',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 5),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 2,
-                          color: const Color(0xFF222C38),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Wrap(
-                          spacing: 13,
-                          runSpacing: 13,
-                          children: [TextureWidget()],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                Column(
-                  children: [
-                    Text(
-                      'Normal map',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 5),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 2,
-                          color: const Color(0xFF222C38),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Wrap(
-                          spacing: 13,
-                          runSpacing: 13,
-                          children: [TextureEmptyWidget()],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                TextureSlotWidget(slotName: "Diffuse"),
+                TextureSlotWidget(slotName: "Light map"),
+                TextureSlotWidget(slotName: "Normal map"),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TextureSlotWidget extends StatelessWidget {
+  final String slotName;
+  const TextureSlotWidget({super.key, required this.slotName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(width: 2, color: const Color(0xFF222C38)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          SizedBox(height: 15),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Text(
+              slotName,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Wrap(
+              spacing: 13,
+              runSpacing: 13,
+              children: [TextureEmptyWidget()],
             ),
           ),
         ],
