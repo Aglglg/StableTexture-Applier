@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,7 +23,7 @@ class _EditingModState extends ConsumerState<EditingMod> {
     areas: [
       Area(
         min: 200,
-        size: 300,
+        size: 200,
         builder: (context, area) => Container(
           decoration: BoxDecoration(
             color: const Color(0xFF14191F),
@@ -46,7 +48,8 @@ class _EditingModState extends ConsumerState<EditingMod> {
         ),
       ),
       Area(
-        flex: 1,
+        min: 260,
+        size: 260,
         builder: (context, area) => Container(
           decoration: BoxDecoration(
             color: const Color(0xFF14191F),
@@ -62,7 +65,8 @@ class _EditingModState extends ConsumerState<EditingMod> {
         ),
       ),
       Area(
-        flex: 1,
+        min: 550,
+        size: 550,
 
         builder: (context, area) => Container(
           decoration: BoxDecoration(
@@ -207,16 +211,26 @@ class IniFilesSection extends ConsumerWidget {
 
           //INI FILES
           Expanded(
-            child: ListView(
-              scrollDirection: Axis.vertical,
-              children: (ref.watch(iniPathsProvider).map((e) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(child: IniFileTextButton(iniFilePath: e)),
-                  ],
-                );
-              }).toList()),
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                  PointerDeviceKind.trackpad,
+                },
+                scrollbars: false,
+              ),
+              child: ListView(
+                scrollDirection: Axis.vertical,
+                children: (ref.watch(iniPathsProvider).map((e) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Expanded(child: IniFileTextButton(iniFilePath: e)),
+                    ],
+                  );
+                }).toList()),
+              ),
             ),
           ),
         ],
@@ -300,46 +314,69 @@ class TexturesSection extends StatelessWidget {
           ),
           Container(height: 15),
           Expanded(
-            child: ListView(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 2,
-                      color: const Color(0xFF222C38),
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(height: 15),
-                      Text(
-                        "TextureOverrideTexture1",
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Wrap(
-                          spacing: 13,
-                          runSpacing: 13,
-                          children: [
-                            TextureWidget(),
-                            TextureWidget(),
-                            TextureWidget(),
-                            TextureWidget(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                  PointerDeviceKind.trackpad,
+                },
+                scrollbars: false,
+              ),
+              child: ListView(
+                children: [
+                  TextureOverrideTextureWidget(),
+                  Container(height: 10),
+
+                  TextureOverrideTextureWidget(),
+
+                  Container(height: 10),
+                  TextureOverrideTextureWidget(),
+
+                  Container(height: 10),
+                  TextureOverrideTextureWidget(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TextureOverrideTextureWidget extends StatelessWidget {
+  const TextureOverrideTextureWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(width: 2, color: const Color(0xFF222C38)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Container(height: 15),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Text(
+              "TextureOverrideTexture1",
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Wrap(
+              spacing: 13,
+              runSpacing: 13,
+              children: [TextureWidget(), TextureWidget()],
             ),
           ),
         ],
@@ -387,6 +424,48 @@ class TextureWidget extends StatelessWidget {
   }
 }
 
+class TextureEmptyWidget extends StatelessWidget {
+  const TextureEmptyWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        BouncingText(
+          text: '',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          width: 130,
+        ),
+        BouncingText(
+          text: '',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w300,
+          ),
+          width: 130,
+        ),
+        SizedBox(height: 5),
+        Container(
+          height: 130,
+          width: 130,
+          decoration: BoxDecoration(
+            border: Border.all(
+              width: 2,
+              color: const Color.fromARGB(0, 34, 44, 56),
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 ////////////SECTION_3//////////////
 ////////////SECTION_3//////////////
 ////////////SECTION_3//////////////
@@ -396,8 +475,14 @@ class ComponentsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 45 + 30, left: 30),
+      padding: const EdgeInsets.only(
+        top: 45 + 30,
+        left: 30,
+        right: 30,
+        bottom: 30,
+      ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -408,6 +493,169 @@ class ComponentsSection extends StatelessWidget {
               color: Colors.white,
               fontSize: 17,
               fontWeight: FontWeight.w600,
+            ),
+          ),
+          Container(height: 15),
+          Expanded(
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                  PointerDeviceKind.trackpad,
+                },
+                scrollbars: false,
+              ),
+              child: ListView(
+                children: [
+                  TextureOverrideComponentWidget(),
+                  Container(height: 10),
+
+                  TextureOverrideComponentWidget(),
+
+                  Container(height: 10),
+                  TextureOverrideComponentWidget(),
+
+                  Container(height: 10),
+                  TextureOverrideComponentWidget(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TextureOverrideComponentWidget extends StatelessWidget {
+  const TextureOverrideComponentWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(width: 2, color: const Color(0xFF222C38)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Container(height: 15),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Text(
+              "TextureOverrideComponent1",
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Wrap(
+              spacing: 13,
+              runSpacing: 13,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      'Diffuse',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 5),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 2,
+                          color: const Color(0xFF222C38),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Wrap(
+                          spacing: 13,
+                          runSpacing: 13,
+                          children: [TextureWidget()],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                Column(
+                  children: [
+                    Text(
+                      'Light map',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 5),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 2,
+                          color: const Color(0xFF222C38),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Wrap(
+                          spacing: 13,
+                          runSpacing: 13,
+                          children: [TextureWidget()],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                Column(
+                  children: [
+                    Text(
+                      'Normal map',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 5),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 2,
+                          color: const Color(0xFF222C38),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Wrap(
+                          spacing: 13,
+                          runSpacing: 13,
+                          children: [TextureEmptyWidget()],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

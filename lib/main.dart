@@ -1,3 +1,4 @@
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stabletexture_applier/editing_page.dart';
@@ -21,7 +22,12 @@ Future<void> main() async {
     await windowManager.setResizable(true);
     await windowManager.setTitle("StableTextureApplier");
   });
+
   runApp(ProviderScope(child: const MyApp()));
+
+  doWhenWindowReady(() {
+    appWindow.minSize = Size(1010, 500);
+  });
 }
 
 class MyApp extends StatelessWidget {

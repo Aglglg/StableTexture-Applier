@@ -19,11 +19,15 @@ class BouncingText extends StatefulWidget {
 }
 
 class _BouncingTextState extends State<BouncingText>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late final ScrollController _scrollController;
   late final AnimationController _animationController;
   double _textWidth = 0;
   bool _userScrolling = false;
+  bool _mounted = true;
+
+  @override
+  bool get wantKeepAlive => false;
 
   @override
   void initState() {
@@ -32,21 +36,23 @@ class _BouncingTextState extends State<BouncingText>
     _animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 3))
           ..addStatusListener((status) async {
-            if (_userScrolling) return;
+            if (!_mounted || _userScrolling) return;
+
             if (status == AnimationStatus.completed) {
               await Future.delayed(const Duration(seconds: 1));
-              if (!_userScrolling) _animationController.reverse();
+              if (_mounted && !_userScrolling) _animationController.reverse();
             } else if (status == AnimationStatus.dismissed) {
               await Future.delayed(const Duration(seconds: 1));
-              if (!_userScrolling) _animationController.forward();
+              if (_mounted && !_userScrolling) _animationController.forward();
             }
           });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _mounted = false;
     _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -64,41 +70,41 @@ class _BouncingTextState extends State<BouncingText>
 
     if (_textWidth > widget.width) {
       _animationController.addListener(() {
-        if (_scrollController.hasClients && !_userScrolling) {
+        if (_mounted &&
+            _scrollController.hasClients &&
+            !_userScrolling &&
+            _scrollController.position.hasContentDimensions) {
           final maxScroll = _scrollController.position.maxScrollExtent;
           _scrollController.jumpTo(_animationController.value * maxScroll);
         }
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _animationController.forward();
+        if (_mounted) _animationController.forward();
       });
     }
   }
 
   void _pauseAutoScroll() {
-    if (_userScrolling) return;
+    if (!_mounted) return;
     _userScrolling = true;
     _animationController.stop();
   }
 
   void _resumeAutoScroll() {
-    if (!_userScrolling) return;
-    _userScrolling = false;
+    if (!_mounted) return;
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted && !_userScrolling) {
-        if (_animationController.status == AnimationStatus.forward ||
-            _animationController.status == AnimationStatus.reverse) {
-          _animationController.forward();
-        } else {
-          _animationController.forward();
-        }
+      if (_mounted && !_userScrolling) {
+        _animationController.forward();
       }
     });
+    _userScrolling = false;
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final textWidget = Text(
       widget.text,
       style: widget.style,
@@ -108,7 +114,6 @@ class _BouncingTextState extends State<BouncingText>
     );
 
     if (_textWidth <= widget.width) {
-      //center text if it fits
       return SizedBox(
         width: widget.width,
         child: Center(child: textWidget),

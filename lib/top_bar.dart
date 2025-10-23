@@ -137,7 +137,7 @@ class TitleAreaTopLeft extends ConsumerWidget {
             style: GoogleFonts.poppins(
               color: Colors.white,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
